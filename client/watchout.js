@@ -1,3 +1,8 @@
+// THIS IS WHERE WE STARTED WITH!
+// var mouse = d3.select('.gameBoard')
+//               .append('svg')
+//               .attr({'class': 'svgMouse'});
+
 // start slingin' some d3 here.
 var gameOptions = {
   height: 450,
@@ -25,16 +30,6 @@ var gameBoard = d3.select('.board')
                        })
                   .style('background-color', 'orange');
 
-var updateScore = function() {
-  d3.select('current')
-    .text(gameStats.score.toString());
-};
-
-var updateBestScore = function() {
-  gameStats.bestScore = Math.max(gameStats.bestScore, gameStats.score);
-  d3.select('highscore').text(gameStats.bestScore.toString());
-};
-
 var numRandomCircle = function(n, r) {
   var data = [];
   var count = 0;
@@ -54,15 +49,46 @@ var numRandomCircle = function(n, r) {
 var dataSet = numRandomCircle(20, 10);
 
 var circles = gameBoard.selectAll('.svgBoard')
-                .data(dataSet)
-                .enter()
-                .append('circle')
-                .attr({'class': 'svgCircle',
-                       'r': function(d) { return d.r; },
-                       'fill': 'blue',
-                       'cx': function(d) { return d.cx; },
-                       'cy': function(d) { return d.cy; }
-                     });
+                       .data(dataSet)
+                       .enter()
+                       .append('circle')
+                       .attr({'class': 'svgCircle',
+                              'r': function(d) { return d.r; },
+                              'fill': 'blue',
+                              'cx': function(d) { return d.cx; },
+                              'cy': function(d) { return d.cy; }
+                            });
+
+var dragmove = function(d) {
+  var x = d3.event.x;
+  var y = d3.event.y;
+  d3.select(this).attr('transform', 'translate(' + x + ',' + y + ')');
+};
+
+var drag = d3.behavior.drag()
+             .on('drag', dragmove);
+
+var player = gameBoard.append('circle')
+                      .attr({'class': 'svgPlayer',
+                             'r': 15,
+                             'fill': 'green',
+                             'cx': gameOptions.width / 2,
+                             'cy': gameOptions.height / 2
+                           })
+                      .call(drag);
+
+// player.call(drag);
+
+var updateScore = function() {
+  d3.select('current')
+    .text(gameStats.score.toString());
+};
+
+var updateBestScore = function() {
+  gameStats.bestScore = Math.max(gameStats.bestScore, gameStats.score);
+  d3.select('highscore').text(gameStats.bestScore.toString());
+};
+
 
 var update = function(data) {
   circles.transition()
@@ -74,12 +100,9 @@ var update = function(data) {
 };
 
 
+
 setInterval(function() {
   update(dataSet);
   console.log('hi');
 }, 1000);
   
-// d3.select('.mouse')
-//   .data(['blue'])
-//   .enter()
-//   .append('svg')
