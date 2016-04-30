@@ -16,11 +16,10 @@ var gameStats = {
   bestScore: 0
 };
 
-var axes = {  
-  x: d3.scale.linear().domain([0,100]).range([0,gameOptions.width]),
-  y: d3.scale.linear().domain([0,100]).range([0,gameOptions.height])
-};
-
+// var axes = {  
+//   x: d3.scale.linear().domain([0,100]).range([0,gameOptions.width]),
+//   y: d3.scale.linear().domain([0,100]).range([0,gameOptions.height])
+// };
 
 var gameBoard = d3.select('.board')
                   .append('svg')
@@ -48,7 +47,7 @@ var numRandomCircle = function(n, r) {
 
 var dataSet = numRandomCircle(20, 10);
 
-var circles = gameBoard.selectAll('.svgBoard')
+var enemies = gameBoard.selectAll('.svgBoard')
                        .data(dataSet)
                        .enter()
                        .append('circle')
@@ -59,14 +58,11 @@ var circles = gameBoard.selectAll('.svgBoard')
                               'cy': function(d) { return d.cy; }
                             });
 
-var dragmove = function(d) {
-  var x = d3.event.x;
-  var y = d3.event.y;
-  d3.select(this).attr('transform', 'translate(' + x + ',' + y + ')');
-};
-
 var drag = d3.behavior.drag()
-             .on('drag', dragmove);
+             .on('drag', function() {
+                player.attr({'cx': d3.event.x,
+                            'cy': d3.event.y});
+                });
 
 var player = gameBoard.append('circle')
                       .attr({'class': 'svgPlayer',
@@ -76,8 +72,6 @@ var player = gameBoard.append('circle')
                              'cy': gameOptions.height / 2
                            })
                       .call(drag);
-
-// player.call(drag);
 
 var updateScore = function() {
   d3.select('current')
@@ -89,17 +83,13 @@ var updateBestScore = function() {
   d3.select('highscore').text(gameStats.bestScore.toString());
 };
 
-
 var update = function(data) {
-  circles.transition()
+  enemies.transition()
          .duration(1000)
          .attr({'cx': function(d) { return (d.cx = Math.random() * gameOptions.width); },
                 'cy': function(d) { return (d.cy = Math.random() * gameOptions.height); }
               });
-
 };
-
-
 
 setInterval(function() {
   update(dataSet);
